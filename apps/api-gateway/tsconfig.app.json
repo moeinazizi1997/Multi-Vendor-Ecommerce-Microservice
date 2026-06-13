@@ -11,8 +11,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "../../packages/**/*.ts",
-    "../../generated/**/*.ts"
+    "../../packages/**/*.ts"
   ],
   "exclude": [
     "out-tsc",

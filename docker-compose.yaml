@@ -1,0 +1,73 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: ecommerce_shop
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - mongo-network
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_OPTIONS_EDITORTHEME: "default"
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: password
+
+    depends_on:
+      - mongodb
+    networks:
+      - mongo-network
+    
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass password
+    volumes:
+      - redis_data:/data
+    networks:
+      - redis-network
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: redis-insight
+    restart: unless-stopped
+    ports:
+      - "8082:8001"
+    environment:
+      - RI_REDIS_HOST=redis
+      - RI_REDIS_PORT=6379
+      - RI_REDIS_PASSWORD=password
+    depends_on:
+      - redis
+    networks:
+      - redis-network
+
+volumes:
+  mongodb_data:
+    name: mongodb_data
+  redis_data:
+    name : redis_data
+
+networks:
+  mongo-network:
+    name: mongo-network
+  redis-network:
+    name : redis-network
